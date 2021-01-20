@@ -1,9 +1,11 @@
+package NEAT;
+
 public class NodeGene {
     private TYPE type;
     private int id;
 
     /*
-     *Initialise the NodeGene, when the first nodes are created they are one of
+     *Initialise the NEAT.NodeGene, when the first nodes are created they are one of
      * two types of nodes: INPUT / OUTPUT, every other node is then of type HIDDEN
      */
     public NodeGene(TYPE type, int id){

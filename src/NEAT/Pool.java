@@ -1,20 +1,33 @@
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Random;
+package NEAT;
+
+import java.util.*;
+
+import static java.util.Comparator.comparing;
 
 public class Pool {
 
-Random random = new Random();
+    private int currentTotalGenomes = 0;
+    private int previousTotalGenomes = 0;
 
-
+    Random random = new Random();
+    public static int globalInnovationNumber = 0;
+    public static int globalAdjustedFitness = 0;
     //Weights for the disjoint function
-    private final double C1 = 1, C2 = 1, C3 = 1;
+
+    int timeSinceBetterFitness = 0;
+
+    public static List<ConnectionGene> totalConnectionsMade = new ArrayList<ConnectionGene>();
+
+    public List<Species> getSpecies() {
+        return species;
+    }
 
     private List<Species> species = new ArrayList<>();
 
     //Instantiate a threshold to dictate whether a genome is part of a specific species
-    public final int DELTA_THRESHOLD = 1;
 
+    private int generation = 0;
+    private int poolStaleness = 0;
 
     /*
      * A function to compare the current genome to the representatives of each species - this allows us to dictate
@@ -25,7 +38,7 @@ Random random = new Random();
         //Iterate through the representatives
        for(Species species : species){
            //Add it to existing species if its result of comparison is below the threshold
-          if(compatibilityDistance(species.getRepresentative(), genome) < DELTA_THRESHOLD){
+          if(compatibilityDistance(species.getRepresentative(), genome) < NEAT_CONFIGURATIONS.DELTA_THRESHOLD){
               species.getGenome().add(genome);
               done = true;
               break;
@@ -40,6 +53,27 @@ Random random = new Random();
 
     }
 
+    public Genome randomGenome(){
+        Species randomSpecies = species.get(random.nextInt(species.size()));
+        Genome randomGenome = randomSpecies.getGenome().get(random.nextInt(randomSpecies.getGenome().size()));
+        return randomGenome;
+    }
+
+    public double globalTotalAdjustedFitness(){
+        double totalFitness = 0;
+        for(Species species : species){
+            totalFitness += species.getAdjustedFitness();
+        }
+        return (totalFitness);
+    }
+
+    public double globalAdjustedFitness(){
+        double totalFitness = 0;
+        for(Species species : species){
+            totalFitness += species.getAdjustedFitness();
+        }
+        return (totalFitness / NEAT_CONFIGURATIONS.POPULATION);
+    }
 
     /*
      * Calculate the number of disjoint genes, where disjoint is the amount of different genes within the two genomes
@@ -91,7 +125,7 @@ Random random = new Random();
     }
 
 
-    //Calculate the value N of the compatibiliy function, where if the genoems have less than
+    //Calculate the value N of the compatibiliy function, where if the genomes have less than
     //20 genes, the value of N = 1
     private int largerGenome(Genome parent1, Genome parent2){
         if(parent1.getConnectionGenes().values().size() < 20 && parent2.getConnectionGenes().values().size() < 20){
@@ -128,7 +162,7 @@ Random random = new Random();
         int excess = excess(g1,g2);
         int disjoint = disjoint(g1, g2);
         double weightDiff = weightDiff(g1, g2);
-        double delta = (C1 * excess)/N + (C2 * disjoint)/N + C3 * weightDiff;
+        double delta = (NEAT_CONFIGURATIONS.C1 * excess)/N + (NEAT_CONFIGURATIONS.C2 * disjoint)/N + NEAT_CONFIGURATIONS.C3 * weightDiff;
         return delta;
     }
 
@@ -139,6 +173,68 @@ Random random = new Random();
             species.adjustedFitness();
         }
     }
+
+    public int totalGenomes(){
+        int totalGenomes = 0;
+        for(Species species : species){
+            totalGenomes+= species.getGenome().size();
+        }
+        previousTotalGenomes = currentTotalGenomes;
+        currentTotalGenomes = totalGenomes;
+        return totalGenomes;
+    }
+
+
+    public void breedNewGeneration(){
+
+            for(Species species : species) {
+                int populationAssigned = (int) Math.ceil(NEAT_CONFIGURATIONS.POPULATION * (species.getTotalAdjustedFitness() / globalTotalAdjustedFitness()));
+                species.reproduce(populationAssigned);
+            }
+            if(Math.random() < 0.001){
+                Species randomSpecies1 = species.get(random.nextInt(species.size()));
+                Genome randomGenome1 = randomSpecies1.getGenome().get(random.nextInt(randomSpecies1.getGenome().size()));
+                Species randomSpecies2 = species.get(random.nextInt(species.size()));
+                Genome randomGenome2 = randomSpecies2.getGenome().get(random.nextInt(randomSpecies2.getGenome().size()));
+
+                //Place child in both
+                Genome child = randomSpecies1.crossOver(randomGenome1, randomGenome2);
+                randomSpecies2.getGenome().add(child);
+
+            }
+
+            if(totalGenomes() < previousTotalGenomes){
+                int newGenomes = previousTotalGenomes - totalGenomes();
+                while(newGenomes < previousTotalGenomes){
+                    Genome genome = new Genome();
+                    assignSpecies(genome);
+                }
+            }
+
+
+            for( Species species : species){
+                species.setRepresentative(species.getGenome().get(random.nextInt(species.getGenome().size())));
+            }
+
+    }
+
+    public void initialisePool(){
+        for(int i = 0; i < NEAT_CONFIGURATIONS.POPULATION;i++){
+            assignSpecies(new Genome());
+        }
+    }
+
+
+    public void speciesStaleness(){
+        species.sort(comparing(Species::getAdjustedFitness).reversed());
+        if(timeSinceBetterFitness == 20){
+            for(int i = 0; i <species.size()-2;i++){
+                species.remove(i);
+            }
+        }
+    }
+
+
 
 
 

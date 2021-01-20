@@ -1,3 +1,5 @@
+package NEAT;
+
 public class ConnectionGene {
 
 
