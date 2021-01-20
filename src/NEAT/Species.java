@@ -17,7 +17,7 @@ public class Species {
     private Genome representative;
 
     Random rand = new Random();
-    double portionToCull;
+
 
     private double adjustedFitness = 0;
 

@@ -191,7 +191,7 @@ public class Pool {
                 int populationAssigned = (int) Math.ceil(NEAT_CONFIGURATIONS.POPULATION * (species.getTotalAdjustedFitness() / globalTotalAdjustedFitness()));
                 species.reproduce(populationAssigned);
             }
-            if(Math.random() < 0.001){
+            if(Math.random() <= NEAT_CONFIGURATIONS.INTERSPECIESMATING){
                 Species randomSpecies1 = species.get(random.nextInt(species.size()));
                 Genome randomGenome1 = randomSpecies1.getGenome().get(random.nextInt(randomSpecies1.getGenome().size()));
                 Species randomSpecies2 = species.get(random.nextInt(species.size()));

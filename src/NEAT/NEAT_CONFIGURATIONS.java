@@ -15,6 +15,7 @@ public class NEAT_CONFIGURATIONS {
 
     private final float SIGMOID_CONSTANT = 4.9f;
 
+    public static final double INTERSPECIESMATING = 0.001;
 
     static float sigmoid(float x){
         final float SIGMOID_CONSTANT = 4.9f;
