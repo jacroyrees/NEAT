@@ -22,32 +22,31 @@ public class Species {
     private double adjustedFitness = 0;
 
 
-    public Species(){
+    public Species() {
 
     }
 
-    public double getTotalAdjustedFitness(){
+    public double getTotalAdjustedFitness() {
         double totalFitness = 0;
-        for(Genome genome : genome){
+        for (Genome genome : genome) {
             totalFitness += genome.getAdjustedFitness();
         }
         return totalFitness;
     }
 
 
-    public double getAdjustedFitness(){
+    public double getAdjustedFitness() {
         double totalFitness = 0;
-        for(Genome genome : genome){
+        for (Genome genome : genome) {
             totalFitness += genome.getAdjustedFitness();
         }
         adjustedFitness = (totalFitness / genome.size());
         return adjustedFitness;
     }
 
-    public Genome getRepresentative(){
+    public Genome getRepresentative() {
         return representative;
     }
-
 
 
     public List<Genome> getGenome() {
@@ -55,11 +54,9 @@ public class Species {
     }
 
 
-
     public void setGenome(List<Genome> genome) {
         this.genome = genome;
     }
-
 
 
     private List<Genome> genome = new ArrayList<>();
@@ -70,63 +67,90 @@ public class Species {
      * and mutated genes taken from the fitter parent
      */
     public Genome crossOver(Genome parent1, Genome parent2) {
-        boolean parent1Bigger;
         Genome child = new Genome();
-        //Flip the parents around
-        if (parent1.getFitness() < parent2.getFitness()) {
+        //Case if parent1 is best
+        if (parent1.getAdjustedFitness() < parent2.getAdjustedFitness()) {
             Genome temp = parent1;
             parent1 = parent2;
             parent2 = temp;
         }
-        //Case of equal fitness -> Take nodes from the parent with more nodes
-        if (parent1.getFitness() == parent2.getFitness()) {
-            //Copy in every node (will overwrite)
-            for (NodeGene parent2Node : parent2.getNodes().values()) {
-                child.addNodeGene(parent2Node.copy());
-            }
-            for (NodeGene parent1Node : parent1.getNodes().values()) {
-                child.addNodeGene(parent1Node.copy());
-            }
-            //Add both connection genes
-            for (ConnectionGene connectionGene : parent1.getConnectionGenes().values()) {
-                if (parent2.getConnectionGenes().containsKey(connectionGene.getInnovation())) {
-                    child.addConnectionGene(rand.nextBoolean() ? connectionGene : parent2.getConnectionGenes().get(connectionGene.getInnovation()));
-                    child.getConnectionGenes().get(connectionGene.getInnovation()).setEnabled(disabledGeneProb(connectionGene));
-                } else {
-                    child.addConnectionGene(connectionGene);
-                    child.getConnectionGenes().get(connectionGene.getInnovation()).setEnabled(disabledGeneProb(connectionGene));
-                }
-            }
-            for (ConnectionGene connectionGene : parent2.getConnectionGenes().values()) {
-                if (parent1.getConnectionGenes().containsKey(connectionGene.getInnovation())) {
-                    child.addConnectionGene(rand.nextBoolean() ? connectionGene : parent1.getConnectionGenes().get(connectionGene.getInnovation()));
-                    child.getConnectionGenes().get(connectionGene.getInnovation()).setEnabled(disabledGeneProb(connectionGene));
-                } else {
-                    child.addConnectionGene(connectionGene);
-                    child.getConnectionGenes().get(connectionGene.getInnovation()).setEnabled(disabledGeneProb(connectionGene));
-                }
-            }
-        } else {
-            //Parent 1 fitter
-            for (NodeGene parent1Node : parent1.getNodes().values()) {
-                child.addNodeGene(parent1Node.copy());
-            }
-            for (ConnectionGene connectionGene : parent1.getConnectionGenes().values()) {
-                if (parent2.getConnectionGenes().containsKey(connectionGene.getInnovation())) {
-                    child.addConnectionGene(rand.nextBoolean() ? connectionGene : parent2.getConnectionGenes().get(connectionGene.getInnovation()));
-                } else {
-                    child.addConnectionGene(connectionGene);
-                }
-            }
-        }
+        if (!(parent1.getAdjustedFitness() == parent2.getAdjustedFitness())) {
 
+            for(NodeGene gene : parent1.getNodes().values()){
+                if(parent2.getNodes().containsValue(gene.getId())){
+                    child.addNodeGene(rand.nextBoolean() ? gene.copy() : parent2.getNodes().get(gene.getId()).copy());
+
+                }else{
+                    child.addNodeGene(gene.copy());
+                }
+
+            }
+
+            for(ConnectionGene gene : parent1.getConnectionGenes().values()){
+                if(parent2.getConnectionGenes().containsValue(gene.getInnovation())){
+                    child.addConnectionGene(rand.nextBoolean() ? gene.copy() : parent2.getConnectionGenes().get(gene.getInnovation()).copy());
+                }else{
+                    child.addConnectionGene(gene.copy());
+                }
+            }
+
+
+
+
+        } else{
+
+            //case if theyre identical fitnesses
+
+            if (parent1.getConnectionGenes().size() < parent2.getConnectionGenes().size()) {
+                Genome temp = parent1;
+                parent1 = parent2;
+                parent2 = temp;
+            }
+            for (NodeGene gene : parent1.getNodes().values()) {
+                if (parent2.getNodes().containsValue(gene.getId())) {
+                    child.addNodeGene(rand.nextBoolean() ? gene.copy() : parent2.getNodes().get(gene.getId()).copy());
+                } else {
+                    if (Math.random() > 0.5) {
+                        child.addNodeGene(gene.copy());
+                    }
+                }
+            }
+            for (NodeGene gene : parent2.getNodes().values()) {
+                if (!parent1.getNodes().containsValue(gene.getId())) {
+                    if (Math.random() > 0.5) {
+                        child.addNodeGene(gene.copy());
+                    }
+                }
+            }
+
+            for (ConnectionGene gene : parent1.getConnectionGenes().values()) {
+                if (parent2.getConnectionGenes().containsValue(gene.getInnovation())) {
+                    child.addConnectionGene(rand.nextBoolean() ? gene.copy() :  parent2.getConnectionGenes().get(gene.getInnovation()).copy());
+                } else {
+                    if (Math.random() > 0.5) {
+                        child.addConnectionGene(gene.copy());
+                    }
+                }
+            }
+
+            for (ConnectionGene gene : parent2.getConnectionGenes().values()) {
+                if (!parent1.getConnectionGenes().containsValue(gene.getInnovation())) {
+                    if (Math.random() > 0.5) {
+                        child.addConnectionGene(gene.copy());
+                    }
+                }
+            }
+
+        }
         mutate(child);
-        genome.add(child);
         return child;
     }
 
+
+
+
     public void setRepresentative(){
-        representative = genome.get(rand.nextInt(genome.size()));
+        representative = genome.get(rand.nextInt(genome.size()-1)+1);
     }
 
     public boolean disabledGeneProb(ConnectionGene connectionGene){
@@ -154,25 +178,26 @@ public class Species {
 
 
     public void reproduce(int populationAssigned){
-        List<Genome> newGeneration = aSexualReproduction();
+        List<Genome> newGeneration = new ArrayList<>();
 
 
         if(genome.get(0).getNodes().size() > 5){
             newGeneration.add(genome.get(0));
             genome.remove(0);
         }
+         newGeneration.addAll(aSexualReproduction());
 
         getGenome().sort(comparing(Genome::getAdjustedFitness));
 
         cullGenomes();
         for(int i = 0; i < populationAssigned;i++){
 
-            Genome randomGenome1 = getGenome().get(rand.nextInt(getGenome().size()));
-            Genome randomGenome2 = getGenome().get(rand.nextInt(getGenome().size()));
+            Genome randomGenome1 = getGenome().get(rand.nextInt(getGenome().size()-1)+1);
+            Genome randomGenome2 = getGenome().get(rand.nextInt(getGenome().size()-1)+1);
 
             while(randomGenome1 == randomGenome2){
-                randomGenome1 = getGenome().get(rand.nextInt(getGenome().size()));
-                randomGenome2 = getGenome().get(rand.nextInt(getGenome().size()));
+                randomGenome1 = getGenome().get(rand.nextInt(getGenome().size()-1)+1);
+                randomGenome2 = getGenome().get(rand.nextInt(getGenome().size()-1)+1);
             }
             Genome child = crossOver(randomGenome1, randomGenome2);
             newGeneration.add(child);
@@ -206,6 +231,11 @@ public class Species {
                 }
             }
         }
+        if(Math.random() <= 0.03){
+          genome.addNode();
+        }if(Math.random() <= 0.05){
+            genome.addConnection();
+        }
     }
 
 
@@ -215,9 +245,10 @@ public class Species {
         for(int i = 0; i < numberOfASexualCrossOver;i++){
 
             //Get a genome for Asexual reproduction
-            Genome g1 = getGenome().get(i);
+            int randomGenome = rand.nextInt(getGenome().size()-1)+1;
+            Genome g1 = getGenome().get(randomGenome);
 
-            getGenome().remove(i);
+            getGenome().remove(randomGenome);
 
 
             if(Math.random() < 0.25){
@@ -232,7 +263,7 @@ public class Species {
         newGeneration.add(g1);
         }
 
-        return aSexualReproduction();
+        return newGeneration;
     }
 
 

@@ -25,7 +25,7 @@ public class NodeGene {
 
 
     //Declare the three different types
-    enum TYPE{
+    public enum TYPE{
         INPUT,
         HIDDEN,
         OUTPUT

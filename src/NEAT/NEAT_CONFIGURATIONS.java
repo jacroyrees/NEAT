@@ -17,6 +17,14 @@ public class NEAT_CONFIGURATIONS {
 
     public static final double INTERSPECIESMATING = 0.001;
 
+    public static final int MINIMUMNUMBEROFNODES = 7;
+
+    public static final int INITIAL_SPECIES_NUMBER = 10;
+
+    public static final int INITIAL_SPECIES_GENOME_NUMBER = 10;
+
+    public static int globalInnovationNumber = 12;
+
     static float sigmoid(float x){
         final float SIGMOID_CONSTANT = 4.9f;
         return (float)(1/(1+Math.exp(-SIGMOID_CONSTANT * x)));

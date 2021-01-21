@@ -1,47 +1,42 @@
-import NEAT.ConnectionGene;
-import NEAT.Genome;
-import NEAT.Pool;
-import NEAT.Species;
+import NEAT.*;
+import Tests.GenomePrinter;
+
+import java.util.Random;
 
 
-public class Main {
+public class Main{
 
     public static void main(String[] args) {
-        Genome g1 = new Genome();
+       Genome g1 = new Genome();
         Genome g2 = new Genome();
 
-        System.out.println("########################");
-       double weight = 0.4;
 
-        System.out.println(Pool.globalInnovationNumber);
-
-        System.out.println(Pool.globalInnovationNumber);
-        System.out.println("hi");
-        g2.addConnectionGene(new ConnectionGene(1, 4, weight, true, 1));
-        g2.addConnectionGene(new ConnectionGene(2, 4, weight, false, 2));
-        g2.addConnectionGene(new ConnectionGene(3, 4, weight, true, 3));
-        g2.addConnectionGene(new ConnectionGene(2, 5, weight, true, 4));
-        g2.addConnectionGene(new ConnectionGene(5, 4, weight, false, 5));
-        g2.addConnectionGene(new ConnectionGene(5, 6, weight, true, 6));
-        g2.addConnectionGene(new ConnectionGene(6, 4, weight, true, 7));
-        g2.addConnectionGene(new ConnectionGene(3, 5, weight, true, 9));
-        g2.addConnectionGene(new ConnectionGene(1, 6, weight, true, 10));
-
-        g1.setFitness(700);
-        g2.setFitness(500);
+        g1.setAdjustedFitness(700);
+        g2.setAdjustedFitness(600);
 
 
+g1.addNode();
+g1.addNode();
+        System.out.println(g2.getNodeGenes().size());
+     System.out.println("##################");System.out.println("##################");
+
+        GenomePrinter genomePrinter = new GenomePrinter();
+        genomePrinter.showGenome(g1, "1");
+        genomePrinter.showGenome(g2, "2");
 
         Species species = new Species();
+        species.getGenome().add(g2);
+        species.getGenome().add(g1);
+
         Genome child = species.crossOver(g1, g2);
+        System.out.println(child.getConnectionGenes().size());
+        genomePrinter.showGenome(child, "3");
+     System.out.println("##################");
 
-        for (Integer key : child.getNodes().keySet()) {
-         //   System.out.println(key);
-        }
 
-        System.out.println("##################");
-        for (Integer key : child.getConnectionGenes().keySet()) {
-           // System.out.println(key);
+
+     for (Integer key : child.getConnectionGenes().keySet()) {
+            System.out.println(key);
         }
 
 
@@ -67,8 +62,31 @@ public class Main {
         }
 
     }*/
-    }
-    }
+   /*  GenomePrinter genomePrinter = new GenomePrinter();
+     Thread thread = new Thread();
+     Pool pool = new Pool();
+     boolean running = true;
+     pool.initialisePool();
+     int i = 0;
+     while(i < 10){
+
+      Random random = new Random();
+
+      pool.breedNewGeneration();
+      Species randomSpeces = pool.getSpecies().get(1);
+      Genome randomGenome = randomSpeces.getGenome().get(randomSpeces.getGenome().size());
+      GenomePrinter printer = new GenomePrinter();
+      printer.showGenome(randomGenome, String.valueOf(i));
+      i++;
+     }*/
+
+
+
+
+
+
+ }
+}
 
 
 
