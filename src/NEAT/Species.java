@@ -142,7 +142,7 @@ public class Species {
             }
 
         }
-        mutate(child);
+      //  mutate(child);
         return child;
     }
 
@@ -181,34 +181,42 @@ public class Species {
         List<Genome> newGeneration = new ArrayList<>();
 
 
+
+
+
+        getGenome().sort(comparing(Genome::getAdjustedFitness));
         if(genome.get(0).getNodes().size() > 5){
             newGeneration.add(genome.get(0));
             genome.remove(0);
         }
-         newGeneration.addAll(aSexualReproduction());
-
-        getGenome().sort(comparing(Genome::getAdjustedFitness));
-
         cullGenomes();
-        for(int i = 0; i < populationAssigned;i++){
+        newGeneration.add(aSexualReproduction());
 
-            Genome randomGenome1 = getGenome().get(rand.nextInt(getGenome().size()-1)+1);
-            Genome randomGenome2 = getGenome().get(rand.nextInt(getGenome().size()-1)+1);
+        for(int i = 0; i < populationAssigned;i++) {
+            if (getGenome().size() > 2) {
+                Genome randomGenome1 = getGenome().get(rand.nextInt(getGenome().size() - 1) + 1);
+                Genome randomGenome2 = getGenome().get(rand.nextInt(getGenome().size() - 1) + 1);
 
-            while(randomGenome1 == randomGenome2){
-                randomGenome1 = getGenome().get(rand.nextInt(getGenome().size()-1)+1);
-                randomGenome2 = getGenome().get(rand.nextInt(getGenome().size()-1)+1);
+                while (randomGenome1 == randomGenome2) {
+                    randomGenome1 = getGenome().get(rand.nextInt(getGenome().size() - 1) + 1);
+
+                }
+                Genome child = crossOver(randomGenome1, randomGenome2);
+                mutate(child);
+                child.setAdjustedFitness(rand.nextInt(1000));
+                newGeneration.add(child);
+                System.out.println(newGeneration.size());
             }
-            Genome child = crossOver(randomGenome1, randomGenome2);
-            newGeneration.add(child);
         }
 
+        this.genome.clear();
+        this.genome = newGeneration;
 
-        genome = newGeneration;
+
     }
 
     public void cullGenomes(){
-        int numberToCull = (int)Math.floor(getGenome().size() * NEAT_CONFIGURATIONS.CULL_PROB);
+        int numberToCull = 2;//(int)Math.floor(getGenome().size() * NEAT_CONFIGURATIONS.CULL_PROB);
 
         getGenome().sort(comparing(Genome::getAdjustedFitness));
 
@@ -219,51 +227,53 @@ public class Species {
 
     private void mutate(Genome genome){
 
-        for(ConnectionGene gene : genome.getConnectionGenes().values()){
-            if (Math.random() > 0.2) {
+            int randomIndex = rand.nextInt(genome.connectionNumbers.size()-1)+1;
+            ConnectionGene randomConnection = genome.getConnectionGenes().get(randomIndex);
 
-                if (Math.random() > 0.1) {
+                if (Math.random() > 0.2) {
 
-                    gene.setWeight(rand.nextBoolean() ? gene.getWeight() - 0.02 : gene.getWeight() + 0.02);
+                    if (Math.random() > 0.1) {
+                        if(randomConnection.getWeight() > 0.02 || randomConnection.getWeight() < 0.98) {
+                            randomConnection.setWeight(randomConnection.getWeight() - 0.02 * (rand.nextBoolean() ? 1 : -1));
+                        }
+                    }
+                    if (Math.random() > 0.9) {
+                        randomConnection.setWeight(Math.random());
+                    }
                 }
-                if (Math.random() > 0.9) {
-                    gene.setWeight(Math.random());
-                }
-            }
-        }
-        if(Math.random() <= 0.03){
+
+
+
+        double test = Math.random();
+
+
           genome.addNode();
-        }if(Math.random() <= 0.05){
+        if(Math.random() <= 0.05){
             genome.addConnection();
         }
     }
 
 
-    private List<Genome> aSexualReproduction(){
-        List<Genome> newGeneration = new ArrayList();
-        int numberOfASexualCrossOver = (int)Math.floor(genome.size() * NEAT_CONFIGURATIONS.ASEXUAL_CROSSOVER_PROB);
-        for(int i = 0; i < numberOfASexualCrossOver;i++){
+    private Genome aSexualReproduction(){
+
 
             //Get a genome for Asexual reproduction
-            int randomGenome = rand.nextInt(getGenome().size()-1)+1;
-            Genome g1 = getGenome().get(randomGenome);
+            Genome randomGenome = getGenome().get(rand.nextInt(getGenome().size()-1)+1);
+            Genome g1 = randomGenome;
 
             getGenome().remove(randomGenome);
 
 
             if(Math.random() < 0.25){
                 g1.addConnection();
-            }else if(Math.random() < 50){
+            }if(Math.random() < 0.25){
                 g1.addNode();
-            }else{
-                g1.addNode();
-                g1.addConnection();
             }
 
-        newGeneration.add(g1);
-        }
 
-        return newGeneration;
+
+
+        return g1;
     }
 
 

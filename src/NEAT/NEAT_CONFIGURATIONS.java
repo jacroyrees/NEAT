@@ -23,7 +23,7 @@ public class NEAT_CONFIGURATIONS {
 
     public static final int INITIAL_SPECIES_GENOME_NUMBER = 10;
 
-    public static int globalInnovationNumber = 12;
+    public static int globalInnovationNumber = 11;
 
     static float sigmoid(float x){
         final float SIGMOID_CONSTANT = 4.9f;

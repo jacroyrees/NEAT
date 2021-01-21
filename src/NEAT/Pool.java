@@ -188,10 +188,15 @@ public class Pool {
     public void breedNewGeneration(){
 
             for(Species species : speciesList) {
-                int populationAssigned = (int) Math.ceil(NEAT_CONFIGURATIONS.POPULATION * (species.getTotalAdjustedFitness() / globalTotalAdjustedFitness()));
-                species.reproduce(populationAssigned);
+
+
+
+
+                species.reproduce(10);
+
             }
-            if(Math.random() <= NEAT_CONFIGURATIONS.INTERSPECIESMATING){
+
+           if(Math.random() <= NEAT_CONFIGURATIONS.INTERSPECIESMATING){
                 Species randomSpecies1 = speciesList.get(random.nextInt(speciesList.size()-1)+1);
                 Genome randomGenome1 = randomSpecies1.getGenome().get(random.nextInt(randomSpecies1.getGenome().size()-1)+1);
                 Species randomSpecies2 = speciesList.get(random.nextInt(speciesList.size()-1)+1);
@@ -199,15 +204,17 @@ public class Pool {
 
                 //Place child in both
                 Genome child = randomSpecies1.crossOver(randomGenome1, randomGenome2);
+                child.setAdjustedFitness(random.nextInt(1000));
                 randomSpecies2.getGenome().add(child);
 
             }
-
             if(totalGenomes() < previousTotalGenomes){
                 int newGenomes = previousTotalGenomes - totalGenomes();
-                while(newGenomes < previousTotalGenomes){
+                int i = 0;
+                while(i < newGenomes){
                     Genome genome = new Genome();
                     assignSpecies(genome);
+                    i++;
                 }
             }
 
@@ -224,6 +231,7 @@ public class Pool {
             speciesList.add(species);
             for(int j = 0; j < NEAT_CONFIGURATIONS.INITIAL_SPECIES_GENOME_NUMBER;j++){
                 speciesList.get(i).getGenome().add(new Genome());
+
             }
         }
     }

@@ -7,7 +7,8 @@ import java.util.Random;
 public class Main{
 
     public static void main(String[] args) {
-       Genome g1 = new Genome();
+
+     /*  Genome g1 = new Genome();
         Genome g2 = new Genome();
 
 
@@ -21,8 +22,8 @@ g1.addNode();
      System.out.println("##################");System.out.println("##################");
 
         GenomePrinter genomePrinter = new GenomePrinter();
-        genomePrinter.showGenome(g1, "1");
-        genomePrinter.showGenome(g2, "2");
+        genomePrinter.showGenome(g1, "Parent 1");
+        genomePrinter.showGenome(g2, "Parent 2");
 
         Species species = new Species();
         species.getGenome().add(g2);
@@ -30,7 +31,7 @@ g1.addNode();
 
         Genome child = species.crossOver(g1, g2);
         System.out.println(child.getConnectionGenes().size());
-        genomePrinter.showGenome(child, "3");
+        genomePrinter.showGenome(child, "Child");
      System.out.println("##################");
 
 
@@ -62,26 +63,28 @@ g1.addNode();
         }
 
     }*/
-   /*  GenomePrinter genomePrinter = new GenomePrinter();
-     Thread thread = new Thread();
-     Pool pool = new Pool();
-     boolean running = true;
+
+        GenomePrinter printer = new GenomePrinter();
+        Pool pool = new Pool();
+
      pool.initialisePool();
-     int i = 0;
-     while(i < 10){
-
-      Random random = new Random();
-
-      pool.breedNewGeneration();
-      Species randomSpeces = pool.getSpecies().get(1);
-      Genome randomGenome = randomSpeces.getGenome().get(randomSpeces.getGenome().size());
-      GenomePrinter printer = new GenomePrinter();
-      printer.showGenome(randomGenome, String.valueOf(i));
-      i++;
-     }*/
+        Random random = new Random();
+for(int i =0; i < 100;i++) {
+    Species species = pool.getSpecies().get(1);
+    // int i = 0;
 
 
 
+    pool.breedNewGeneration();
+
+    Genome randomGenome = species.getGenome().get(random.nextInt(species.getGenome().size() - 1) + 1);
+    randomGenome.addNode();
+    //randomGenome.addNode();
+    randomGenome.addNode();
+    if(i % 10 == 0) {
+        printer.showGenome(randomGenome, String.valueOf(i));
+    }
+}
 
 
 
